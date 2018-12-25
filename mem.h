@@ -16,43 +16,24 @@ void *ec_malloc(unsigned int mem) {
 }
 
 // Check if data is empty
-uint8_t checkEmpty(void *ptr, const char *szType) {
-    if(!strcmp(szType, "Elf32_Ehdr")) {
-        Elf32_Ehdr null;
+uint8_t checkEmpty(void *ptr) {
+    uint8_t *uPtr = (uint8_t *)ptr;
 
-        if(memcmp((Elf32_Ehdr *)ptr, &null, sizeof(Elf32_Ehdr))) {
-            return 1;
-        }
-
-        return 0;
-    } else if(!strcmp(szType, "char")) {
-        char null;
-
-        if(memcmp((char *)ptr, &null, sizeof(char))) {
-            return 1;
-        }
-
-        return 0;
+    if(*uPtr == 0x0 || uPtr == 0x0) {
+        return 1;
     }
+
+    return 0;
 }
 
 // Write Memory To Heap and Store Address
-void *writeMemoryHeap(unsigned int uMem, const char *szType) {
-    if(!strcmp(szType, "char")) {
-        char *ptr = (char *)ec_malloc(uMem);
+void *writeMemoryHeap(unsigned int uMem) {
+    void *ptr = (char *)ec_malloc(uMem);
 
-        bAddressList[bSave] = ptr;
+    bAddressList[bSave] = ptr;
 
-        bSave++;
-        return ptr;
-    } else if(!strcmp(szType, "Elf32_Ehdr")) {
-        Elf32_Ehdr *ptr = (Elf32_Ehdr *)ec_malloc(uMem);
-
-        bAddressList[bSave] = ptr;
-
-        bSave++;
-        return ptr;
-    }
+    bSave++;
+    return ptr;
 }
 
 // Free Remaining Memory
