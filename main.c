@@ -15,7 +15,7 @@ const char szFilePath[] = "/home/okole/Projects/C/System_Programming/Pthread_adv
 int readELFHeader(const char* elfFile) {
   int iRet = null;
 
-  // switch to Elf32_Ehdr for x86 architecture.
+  // switch to Elf64_Ehdr for x64 architecture.
   Elf32_Ehdr header;
 
   FILE* file = fopen(elfFile, "r");
