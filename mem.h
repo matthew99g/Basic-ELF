@@ -28,7 +28,7 @@ uint8_t checkEmpty(void *ptr) {
 
 // Write Memory To Heap and Store Address
 void *writeMemoryHeap(unsigned int uMem) {
-    void *ptr = (char *)ec_malloc(uMem);
+    void *ptr = ec_malloc(uMem);
 
     bAddressList[bSave] = ptr;
 
