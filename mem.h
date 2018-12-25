@@ -5,7 +5,7 @@
 #include "vars.h"
 
 // Error Check Malloc
-void *ec_malloc(unsigned int mem) {
+void *ecMalloc(unsigned int mem) {
     void *ptr = malloc(mem);
     if(!ptr) {
         fprintf(stderr, "Failed to Allocate Memory\n");
@@ -28,7 +28,7 @@ uint8_t checkEmpty(void *ptr) {
 
 // Write Memory To Heap and Store Address
 void *writeMemoryHeap(unsigned int uMem) {
-    void *ptr = ec_malloc(uMem);
+    void *ptr = ecMalloc(uMem);
 
     bAddressList[bSave] = ptr;
 
@@ -45,6 +45,7 @@ void freeMemoryHeap() {
 
 // Free Specific Memory and pop Address off of Save Stack
 void freeMemoryHeapP(void *ptr) {
+    // Free Memory
     for(uint8_t i = 0; i < 64; i++) {
         if(bAddressList[i] == ptr) {
             free(bAddressList[i]);
@@ -56,8 +57,8 @@ void freeMemoryHeapP(void *ptr) {
         }
     }
 
+    // pop Freed Memory off of Stack
     uint8_t state = 0x0;
-
     while(!state) {
         for(uint8_t i = 0; i < 64; i++) {
             if(bAddressList[i + 1] && !bAddressList[i]) {
