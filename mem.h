@@ -64,6 +64,8 @@ void freeMemoryHeapP(void *ptr) {
                 state = 0x0;
                 bAddressList[i] = bAddressList[i + 1];
                 bAddressList[i + 1] = 0;
+
+                break;
             } else {
                 state = 0x1;
             }
