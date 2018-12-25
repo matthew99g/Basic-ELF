@@ -4,6 +4,29 @@
 #include "elfparse.h" 
 #include "vars.h"
 
+void organizeStack() {
+    // pop Freed Memory off of Stack
+    // < Wait for State to Equal 64 Just as a Precaution >
+    uint8_t state = 0x0;
+    uint8_t saveState = 0x0;
+    do {
+        for(uint8_t i = saveState; i < 64; i++) {
+            if(bAddressList[i + 1] && !bAddressList[i]) {
+                state = 0x0;
+                bAddressList[i] = bAddressList[i + 1];
+                bAddressList[i + 1] = 0;
+
+                saveState = i - 1;
+                break;
+            } else {
+                state++;
+                if(state >= 64)
+                    break;
+            }
+        }
+    } while(state < 64);
+}
+
 // Error Check Malloc
 void *ecMalloc(unsigned int mem) {
     void *ptr = malloc(mem);
@@ -57,21 +80,7 @@ void freeMemoryHeapP(void *ptr) {
         }
     }
 
-    // pop Freed Memory off of Stack
-    uint8_t state = 0x0;
-    while(!state) {
-        for(uint8_t i = 0; i < 64; i++) {
-            if(bAddressList[i + 1] && !bAddressList[i]) {
-                state = 0x0;
-                bAddressList[i] = bAddressList[i + 1];
-                bAddressList[i + 1] = 0;
-
-                break;
-            } else {
-                state = 0x1;
-            }
-        }
-    }
+    organizeStack();
 }
 
 #endif
