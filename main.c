@@ -1,6 +1,9 @@
-#include "elfparse.h"
-#include "mem.h"
+#define LARGE
 
+#include "memlib.h"
+#include "elfparse.h"
+
+// My Test Application
 const char szFilePath[] =
 "/home/okole/Projects/C/System_Programming/Pthread_adv/pthread";
 
@@ -10,19 +13,21 @@ int main(const int argc, const char *argv[]) {
   getELFHeader(szFilePath, eHeader);
 
   // Double Check Stability
-  if (checkEmpty(eHeader)) {
+  if (checkEmptyPtr(eHeader)) {
     fprintf(stderr, "Failed to find ELF Header\n");
+    exit(1);
   }
 
-  char *szELF = (char *)writeMemoryHeap(sizeof(char) * 4);
+  PHEAP_STRING szELF = hStringInit(0);
 
   // strcpy ELF Magic Number
-  readMagicMZ(szELF, eHeader);
-  printf("Magic String: %s\n", szELF);
+  readMagicMZ(szELF->iValue, eHeader);
+  printf("Magic String: %s\n", szELF->iValue);
 
   // Free Specific Address
-  freeMemoryHeapP(szELF);
+  freeHString(szELF); // or freeMemoryHeapP(szELF)
 
+  // Free Entire Heap
   freeMemoryHeap();
   return 0;
 }
