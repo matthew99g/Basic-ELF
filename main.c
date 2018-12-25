@@ -8,49 +8,52 @@
 #include <unistd.h>
 #include <link.h>
 
-#define null 0;
-
 const char szFilePath[] = "/home/okole/Projects/C/System_Programming/Pthread_adv/pthread";
 
-int readELFHeader(const char* elfFile) {
-  int iRet = null;
-
-  // switch to Elf64_Ehdr for x64 architecture.
-  Elf32_Ehdr header;
-
-  FILE* file = fopen(elfFile, "r");
-  if(file) {
-    // read the header
-    fread(&header, 1, sizeof(header), file);
-
-    // check so its really an elf file
-    if ((header.e_ident[0] == 0x7f &&
-       header.e_ident[1] == 'E' &&
-       header.e_ident[2] == 'L' &&
-       header.e_ident[3] == 'F') &&
-       memcmp(header.e_ident, ELFMAG, SELFMAG) == 0 ) {
-
-       iRet = EXIT_SUCCESS;
-    } else {
-      fclose(file);
-
-      iRet = EXIT_FAILURE;
-    }
-
-    // finally close the file
-    fclose(file);
+void readMagicMZ(char *szPtrELF, Elf32_Ehdr *eHead) {
+  for(uint8_t i = 1; i < 4; i++) {
+    szPtrELF[i - 1] = eHead->e_ident[i];
   }
 
-  return iRet;
+  szPtrELF[3] = '\0';
 }
 
-int main(const int argc, const char *argv[]) {
-  // Call Function/Error Handle 
-  if(readELFHeader(szFilePath)) {
-    fprintf(stderr, "Invalid ELF File...\n");
-  } else {
-    printf("Valid ELF File Found...\n");
+void readELFHeader(const char* elfFile, Elf32_Ehdr *eHead) {
+  Elf32_Ehdr header;
+
+  FILE* file = fopen(elfFile, "r+");
+  if(file) {
+    fread(&header, 1, sizeof(header), file);
+
+    if ((header.e_ident[0] == 0x7f && header.e_ident[1] == 'E' &&
+       header.e_ident[2] == 'L' && header.e_ident[3] == 'F') &&
+       header.e_type & ET_EXEC &&
+       memcmp(header.e_ident, ELFMAG, SELFMAG) == 0 ) {
+
+      memcpy(eHead, &header, sizeof(header));
+    } else {
+      memcpy(eHead, 0x0, sizeof(header));
+    }
   }
 
-  return EXIT_SUCCESS;
+  fclose(file);
+}
+
+int main(int argc, char *argv[]) {
+  Elf32_Ehdr *eHeader = (Elf32_Ehdr *)malloc(sizeof(Elf32_Ehdr));
+  readELFHeader(szFilePath, eHeader);
+
+  if (eHeader->e_ident[0] != 0x7f) {
+    fprintf(stderr, "Failed to find ELF Header\n");
+  }
+
+  char *szELF = (char *)malloc(sizeof(char) * 4);
+
+  readMagicMZ(szELF, eHeader);
+  printf("Magic String: %s\n", szELF);
+
+  free(szELF);
+
+  free(eHeader);
+  return 0;
 }
